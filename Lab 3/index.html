@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Parking - Axel Silva</title>
+    <!-- Enlace al archivo externo de estilos CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Encabezado principal de la página -->
+    <h1>Smart Parking</h1>
+    <p>Simulación de sensores IoT </p>
+    <p>Haz click en un cajón para cambiar su estado</p>
+
+    <!-- Sección del Dashboard con los indicadores principales -->
+    <div class="dashboard">
+        <div class="tarjeta">
+            <h3>Total de lugares</h3> 
+            <p id="total">180</p>
+        </div>
+        <div class="tarjeta">
+            <h3>Disponibles</h3>
+            <p id="disponibles">0</p>
+        </div>
+        <div class="tarjeta">
+            <h3>Ocupados</h3>
+            <p id="ocupados">0</p>
+        </div>
+        <div class="tarjeta">
+            <h3>Ocupación</h3> <!-- Porcentaje de lugares ocupados -->
+            <p id="porcentaje">0%</p>
+        </div>
+    </div>
+
+    <!-- Leyenda para identificar el significado de cada color -->
+    <div class="leyenda">
+        <span class="cuadro-verde"></span> Disponible
+        <span class="cuadro-rojo"></span> Ocupado
+    </div>
+
+    <!-- Contenedor principal del estacionamiento dividido en 5 líneas -->
+    <div class="estacionamiento">
+
+        <div class="linea">
+            <!-- Aquí se insertarán con JavaScript los 36 cajones (18x2) de la línea 1 -->
+            <div id="linea1" class="grid-linea"></div>
+        </div>
+
+        <div class="linea">
+            <div id="linea2" class="grid-linea"></div>
+        </div>
+
+        <div class="linea">
+            <div id="linea3" class="grid-linea"></div>
+        </div>
+
+        <div class="linea">
+            <div id="linea4" class="grid-linea"></div>
+        </div>
+
+        <div class="linea">
+            <div id="linea5" class="grid-linea"></div>
+        </div>
+    </div>
+
+    <script>
+        let totalLugares = 180;
+        // Contador para numerar cada cajón del 1 al 180
+        let contadorCajon = 1;
+        
+        // Ciclo exterior para recorrer las 5 líneas del estacionamiento
+        for (let linea = 1; linea <= 5; linea++) {
+            // Obtenemos el contenedor de la línea actual
+            let contenedorLinea = document.getElementById("linea" + linea);
+
+            // Ciclo interior para crear los 36 cajones de cada línea (18 filas x 2 columnas)
+            for (let i = 1; i <= 36; i++) {
+                // Crea nuevo div para representar el cajon
+                let cajon = document.createElement("div");
+                // Se le asigna un id personal
+                cajon.id = "cajon" + contadorCajon;
+                // Muestra numero de cajon dentro del cajon
+                cajon.innerText = contadorCajon;
+
+                // Genera un número aleatorio entre 0 y 1 para simular si esta vacio u ocupado
+                let numeroAleatorio = Math.random();
+                if (numeroAleatorio > 0.5) {
+                    cajon.className = "cajon disponible";
+                } else {
+                    cajon.className = "cajon ocupado";
+                }
+
+                // crea una función de click dentro del boton para cambiar manualmente el estado del cajón
+                cajon.onclick = function() {
+                    if (cajon.className === "cajon disponible") {
+                        cajon.className = "cajon ocupado";
+                    } else {
+                        cajon.className = "cajon disponible";
+                    }
+                    // Recalculación de los números del dashboard después del cambio
+                    actualizarDashboard();
+                };
+
+                // Agrega el cajón creado dentro de su línea correspondiente
+                contenedorLinea.appendChild(cajon);
+                // Aumenta el contador para el siguiente cajón
+                contadorCajon = contadorCajon + 1;
+            }
+        }
+
+        // Función que cuenta los lugares ocupados y disponibles y actualiza el dashboard
+        function actualizarDashboard() {
+            let lugaresOcupados = 0;
+            let lugaresDisponibles = 0;
+
+            // Recorremos todos los cajones del 1 al 180 para revisar su clase actual
+            for (let j = 1; j <= totalLugares; j++) {
+                let elemento = document.getElementById("cajon" + j);
+                if (elemento.className === "cajon ocupado") {
+                    lugaresOcupados = lugaresOcupados + 1;
+                } else {
+                    lugaresDisponibles = lugaresDisponibles + 1;
+                }
+            }
+
+            // Calculamos el porcentaje de ocupación y lo redondeamos a entero
+            let calculoPorcentaje = (lugaresOcupados / totalLugares) * 100;
+            let porcentajeRedondeado = Math.round(calculoPorcentaje);
+
+            // Actualizamos los textos en el HTML del dashboard
+            document.getElementById("disponibles").innerText = lugaresDisponibles;
+            document.getElementById("ocupados").innerText = lugaresOcupados;
+            document.getElementById("porcentaje").innerText = porcentajeRedondeado + "%";
+        }
+
+        // Simulación automática: cada 3 segundo cambia un cajón al azar
+        setInterval(function() {
+            // Elegimos un número aleatorio entre 1 y 180
+            let cajonRan = Math.floor(Math.random() * 180) + 1;
+            let cajonSeleccionado = document.getElementById("cajon" + cajonRan);
+
+            // Invertimos el estado del cajón seleccionado
+            if (cajonSeleccionado.className === "cajon disponible") {
+                cajonSeleccionado.className = "cajon ocupado";
+            } else {
+                cajonSeleccionado.className = "cajon disponible";
+            }
+
+            // Actualizamos el dashboard con los nuevos datos
+            actualizarDashboard();
+        }, 3000);
+
+        // Llamamos a la función al cargar la página para mostrar los valores iniciales
+        actualizarDashboard();
+    </script>
+
+</body>
+</html>
